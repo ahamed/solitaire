@@ -1,0 +1,26 @@
+/**
+* This scss will contains the stylesheets of 
+* Piles and Pile components
+*/
+
+.solt-piles {
+    display: flex;
+    .solt-pile {
+        &.is-empty-pile{
+            border: 1px solid transparent;
+            width: calc(#{$card-width} / 2);
+            height: calc(#{$card-height} / 2);
+            margin: 20px 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        &.has-card {
+            position: relative;
+            margin-top: 20px;
+            .solitaire-card {
+                position: absolute;
+            }
+        }
+    }
+}

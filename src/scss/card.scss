@@ -1,0 +1,39 @@
+.solitaire-card {
+    width: calc(#{$card-width} / 2);
+    height: calc(#{$card-height} / 2);
+    margin: 20px 10px;
+    perspective: 800px;
+    transition: .3s transform;
+    cursor: move;
+    &:hover {
+        transform: translate3d(-10px, -10px, -10px);
+    }
+
+    .solt-card {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transition: transform 1s;
+        transform-style: preserve-3d;
+        &.is-frontview {
+            transform: rotateY(180deg);
+        }
+    }
+
+    .solt-card__face {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background: $color-light;
+        box-shadow: 2px 2px 4px $color-dark-gray;
+        border-radius: 3px;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        backface-visibility: hidden;
+    }
+
+    .solt-card__face--front {
+        transform: rotateY( 180deg );
+    }
+}

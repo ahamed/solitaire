@@ -1,0 +1,15 @@
+@import 'bulma/sass/utilities/initial-variables.sass';
+@import 'bulma/bulma.sass';
+
+@import "./variable.scss";
+@import "./board.scss";
+@import "./card.scss";
+@import "./piles.scss";
+
+
+.app {
+    background: $board-background-color;
+    width: 100%;
+    height: 100vh;
+    color: $color-light;
+}
