@@ -1,4 +1,4 @@
-{
+const cardImages = {
     "c2": "./cards/2_of_clubs.png",
     "d2": "./cards/2_of_diamonds.png",
     "h2": "./cards/2_of_hearts.png",
@@ -65,4 +65,6 @@
     "sa": "./cards/ace_of_spades.png",
 
     "back": "./cards/back.jpeg"
-}
+};
+
+export default cardImages;
