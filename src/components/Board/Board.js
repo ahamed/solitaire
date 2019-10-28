@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Piles from '../Piles';
-
+import Deck from '../Deck';
 
 class Board extends Component {
     constructor(props) {
@@ -11,7 +11,17 @@ class Board extends Component {
     render() {
         return (
             <div className="solitaire-board">
-                <Piles />
+                <div className="wrapper">
+                    <div className="left-side">
+                        <Piles />
+                    </div>
+                    <div className="right-side">
+                        <div className="deck-container">
+                            <Deck />
+                        </div>
+                        
+                    </div>
+                </div>
             </div>
         ) ;
     }

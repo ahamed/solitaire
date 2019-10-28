@@ -4,9 +4,19 @@
     margin: 20px 10px;
     perspective: 800px;
     transition: .3s transform;
-    cursor: move;
-    &:hover {
-        transform: translate3d(-10px, -10px, -10px);
+    cursor: pointer;
+    position: absolute;
+    &.hoverable {
+        &:hover {
+            transform: translate3d(-10px, -10px, -10px);
+        }
+    }
+
+    &.is-deck-show {
+        transform: translate3d(-100px, 170px, 10px);
+        .solt-card {
+            transform: rotateY(180deg);
+        }
     }
 
     .solt-card {

@@ -1,3 +1,16 @@
 .solitaire-board {
     display: flex;
+    .wrapper {
+        display: flex;
+        flex: 1 1 100%;
+        .right-side {
+            margin: 20px 30px;
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            .deck-container {
+                margin-top: 40px;
+            }
+        }
+    }
 }
