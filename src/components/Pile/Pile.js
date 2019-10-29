@@ -11,9 +11,9 @@ class Pile extends Component {
 
     renderPile = (pile) => {
         if (pile.cards.length <= 0) {
-            return (<div className="solt-pile is-empty-pile"></div>);
+            return (<div className="solitaire-pile is-empty-pile"></div>);
         } else {
-            return(<div className="solt-pile has-card">
+            return(<div className="solitaire-pile has-card">
                 {pile.cards.map((card, index) => {
                     return (
                         <Card key={card.id} card={card} style={{marginTop: `${index * this.state.cardDistance}px`}} />

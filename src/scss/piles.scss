@@ -3,9 +3,9 @@
 * Piles and Pile components
 */
 
-.solt-piles {
+.solitaire-piles {
     display: flex;
-    .solt-pile {
+    .solitaire-pile {
         width: calc(#{$card-width} / 2);
         height: calc(#{$card-height} / 2);
         margin: 20px 10px;

@@ -1,9 +1,22 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 class Card extends Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+        };
+    }
+
+    componentDidMount() {
+
+    }
+
+    componentWillReceiveProps(nextProps) {
+    }
+
+    componentWillUnmount() {
+        
     }
 
     rotateCard = (event) => {
@@ -28,18 +41,54 @@ class Card extends Component {
         }
     }
 
+    pullFromDeck = (event) => {
+        event.preventDefault();
+        const { card: topCard, deck } = this.props;
+        if (!deck) return false;
+        this.props.dispatchPullFromDeck(topCard.id);
+    }
+
     render() {
-        const {card, style = {}, hoverable = true, deck = false, index, deckTotal = 0} = this.props;
+        const { 
+            card, 
+            hoverable = true
+        } = this.props;
         
         return (
-            <div className={`solitaire-card ${hoverable ? 'hoverable' : ''}`} style={style} onClick={(event) => this.rotateDeckCard(event, deck, index, deckTotal)}>
-                <div className={`solt-card ${card.frontView ? 'is-frontview': ''}`}>
-                    <div className="solt-card__face solt-card__face--back" style={{backgroundImage: `url(${card.back})`}}></div>
-                    <div className="solt-card__face solt-card__face--front" style={{backgroundImage: `url(${card.front})`}}></div>
+            <div 
+                className={`solitaire-card-container ${card.cardHelperClasses} ${hoverable ? 'hoverable' : ''}`} 
+                style={card.style} 
+                // onClick={(event) => this.rotateDeckCard(event, deck, index, deckTotal)}
+                onClick={this.pullFromDeck}
+            >
+                <div className={`solitaire-card ${card.frontView ? 'is-frontview' : ''}`}>
+                    <div className="solitaire-card__face solitaire-card__face--back" style={{backgroundImage: `url(${card.back})`}}></div>
+                    <div className="solitaire-card__face solitaire-card__face--front" style={{backgroundImage: `url(${card.front})`}}></div>
                 </div>
             </div>
         )
     }
 }
 
-export default Card;
+const mapStateToProps = (state) => {
+    return {
+
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatchPullFromDeck: (topCardId) => {
+            const action = {
+                type: 'PULL_FROM_DECK',
+                payload: topCardId
+            };
+            dispatch(action);
+        }
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Card);

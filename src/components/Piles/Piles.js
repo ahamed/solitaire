@@ -14,7 +14,7 @@ class Piles extends Component {
     render() {
         const { piles } = this.props;
         return (
-            <div className="solt-piles">
+            <div className="solitaire-piles">
                 {piles.map((pile, index) => {
                     return(
                         <Pile key={index + 1} pile={pile} />

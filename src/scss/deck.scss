@@ -1,0 +1,14 @@
+.solitaire-deck {
+    .solitaire-reset-deck {
+        width: calc(#{$card-width} / 2);
+        height: calc(#{$card-height} / 2);
+        border: 1px solid $color-dark-rgba;
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: $color-dark-rgba;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+}

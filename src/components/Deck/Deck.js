@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Card from '../Card';
 import { connect } from 'react-redux';
+import FA from 'react-fontawesome';
 
 class Deck extends Component {
     constructor(props) {
@@ -12,10 +13,11 @@ class Deck extends Component {
 
     render() {
         const { deck: cards } = this.props;
-        const { length: deckTotal } = cards;
         return (
-            <div className="solt-deck">
-                <div className="solt-reset-deck"></div>
+            <div className="solitaire-deck">
+                <div className="solitaire-reset-deck" onClick={this.props.dispatchResetDeck}>
+                    <FA name="refresh" size="2x" />
+                </div>
                 { cards.map((card, index) => {
                     return (
                         <Card 
@@ -23,9 +25,6 @@ class Deck extends Component {
                             key={card.id} 
                             hoverable={false}
                             deck={true}
-                            index={index}
-                            deckTotal={deckTotal}
-                            style={{marginTop: `-${index}px`, marginLeft: `${index}px`}} 
                         />
                     )
                 })}
@@ -43,7 +42,12 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-
+        dispatchResetDeck: () => {
+            const action = {
+                type: 'RESET_DECK'
+            };
+            dispatch(action);
+        }
     }
 }
 
