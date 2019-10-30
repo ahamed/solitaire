@@ -35,16 +35,20 @@ export const generateInitialPiles = () => {
     // get remaining 24 cards for deck
     let extraCards = keys.filter(key => cardIndexes.indexOf(key) === -1);
     extraCards = shuffle(extraCards);
-    extraCards = extraCards.map((ecard, index) => keyToCard(ecard, false, 'deck', {marginTop: `${index}px`, marginLeft: `${index}px`}));
+    extraCards = extraCards.map((ecard, index) => keyToCard(ecard, false, 'deck', {marginTop: `-${index}px`, marginLeft: `${index}px`}));
 
     let index = 0;
     const piles = [];
 
     for (let i = 0; i < 7; i ++) {
         let cards = [];
+        let pileHead = '';
         for (let j = 0; j < 7 - i; j ++) {
             let frontView = false;
-            if (j === 7 - i - 1) frontView = true;
+            if (j === 7 - i - 1) {
+                frontView = true;
+                pileHead = cardIndexes[index];
+            }
             let style = {
                 marginTop: `${j * 20}px`
             };
@@ -57,6 +61,8 @@ export const generateInitialPiles = () => {
 
         let cardObj = {};
         cardObj.cards = cards;
+        cardObj.pileNo = i + 1;
+        cardObj.pileHead = pileHead;
         piles.push(cardObj);
 
     }

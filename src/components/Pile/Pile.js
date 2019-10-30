@@ -16,7 +16,13 @@ class Pile extends Component {
             return(<div className="solitaire-pile has-card">
                 {pile.cards.map((card, index) => {
                     return (
-                        <Card key={card.id} card={card} style={{marginTop: `${index * this.state.cardDistance}px`}} />
+                        <Card 
+                            key={card.id}
+                            id={card.id}
+                            index={card.id}
+                            pileNo={pile.pileNo} 
+                            card={card} 
+                            style={{marginTop: `${index * this.state.cardDistance}px`}} />
                     )
                 })}
             </div>);

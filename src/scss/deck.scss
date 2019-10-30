@@ -1,7 +1,7 @@
 .solitaire-deck {
     .solitaire-reset-deck {
-        width: calc(#{$card-width} / 2);
-        height: calc(#{$card-height} / 2);
+        width: calc(#{$card-width} / 2.5);
+        height: calc(#{$card-height} / 2.5);
         border: 1px solid $color-dark-rgba;
         position: absolute;
         display: flex;

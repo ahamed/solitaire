@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { DragSource, DropTarget } from 'react-dnd';
 
 class Card extends Component {
     constructor(props) {
@@ -10,9 +11,6 @@ class Card extends Component {
 
     componentDidMount() {
 
-    }
-
-    componentWillReceiveProps(nextProps) {
     }
 
     componentWillUnmount() {
@@ -51,14 +49,20 @@ class Card extends Component {
     render() {
         const { 
             card, 
-            hoverable = true
+            hoverable = true,
+            connectDragPreview,
+            connectDragSource,
+            connectDropTarget,
+            isDragging
         } = this.props;
         
-        return (
+        const opacity = isDragging ? 0 : 1;
+        card.style = {...card.style, opacity: opacity};
+        
+        return connectDragPreview(connectDropTarget(connectDragSource(
             <div 
                 className={`solitaire-card-container ${card.cardHelperClasses} ${hoverable ? 'hoverable' : ''}`} 
-                style={card.style} 
-                // onClick={(event) => this.rotateDeckCard(event, deck, index, deckTotal)}
+                style={card.style}
                 onClick={this.pullFromDeck}
             >
                 <div className={`solitaire-card ${card.frontView ? 'is-frontview' : ''}`}>
@@ -66,9 +70,54 @@ class Card extends Component {
                     <div className="solitaire-card__face solitaire-card__face--front" style={{backgroundImage: `url(${card.front})`}}></div>
                 </div>
             </div>
-        )
+        )));
     }
 }
+
+const itemSource = {
+    beginDrag: props => {
+        return {
+            id: props.id,
+            index: props.index,
+            pileNo: props.pileNo
+        }
+    },
+    canDrag: (props, monitor) => {
+        return props.card.frontView;
+    }
+};
+
+const itemTarget = {
+    hover(props, monitor, component) {
+        const dragItem = monitor.getItem();
+    },
+    drop(props, monitor, component) {
+        const dragItem = monitor.getItem();
+        const {id: dragItemId, pileNo: dragItemPile} = dragItem;
+        const {id: dropItemId, pileNo: dropItemPile} = props;
+
+        props.dispatchCardSwap(dragItemId, dragItemPile, dropItemId, dropItemPile);
+    }
+};
+
+const collect = (connect, monitor) => {
+    return {
+        connectDragSource: connect.dragSource(),
+        connectDragPreview: connect.dragPreview(),
+        isDragging: monitor.isDragging()
+    }
+};
+
+const dropCollect = (connect, monitor) => {
+    return {
+        connectDropTarget: connect.dropTarget(),
+        isOver: monitor.isOver(),
+        canDrop: monitor.canDrop()
+    }
+};
+
+const DragSourceDecorator = DragSource('CARD', itemSource, collect);
+const DropTargetDecorator = DropTarget(['CARD'], itemTarget, dropCollect);
 
 const mapStateToProps = (state) => {
     return {
@@ -84,6 +133,19 @@ const mapDispatchToProps = (dispatch) => {
                 payload: topCardId
             };
             dispatch(action);
+        },
+
+        dispatchCardSwap: (dragItemId, dragItemPile, dropItemId, dropItemPile) => {
+            const action = {
+                type: 'CARD_SWAP',
+                payload: {
+                    dragItemId,
+                    dragItemPile,
+                    dropItemId,
+                    dropItemPile
+                }
+            };
+            dispatch(action);
         }
     }
 }
@@ -91,4 +153,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Card);
+)(DropTargetDecorator(DragSourceDecorator((Card))));
