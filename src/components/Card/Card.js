@@ -9,14 +9,6 @@ class Card extends Component {
         };
     }
 
-    componentDidMount() {
-
-    }
-
-    componentWillUnmount() {
-        
-    }
-
     rotateCard = (event) => {
         event.preventDefault();
         const {currentTarget: el} = event;
@@ -41,8 +33,8 @@ class Card extends Component {
 
     pullFromDeck = (event) => {
         event.preventDefault();
-        const { card: topCard, deck } = this.props;
-        if (!deck) return false;
+        const { card: topCard } = this.props;
+        if (topCard.position !== 'deck' || topCard.frontView) return false;
         this.props.dispatchPullFromDeck(topCard.id);
     }
 
@@ -79,11 +71,20 @@ const itemSource = {
         return {
             id: props.id,
             index: props.index,
-            pileNo: props.pileNo
+            pileNo: props.pileNo,
+            card: props.card
         }
     },
     canDrag: (props, monitor) => {
-        return props.card.frontView;
+        if (props.card.frontView) {
+            if (props.card.position === 'deck') {
+                if (props.card.id !== props.deckHead) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 };
 
@@ -95,8 +96,15 @@ const itemTarget = {
         const dragItem = monitor.getItem();
         const {id: dragItemId, pileNo: dragItemPile} = dragItem;
         const {id: dropItemId, pileNo: dropItemPile} = props;
-
-        props.dispatchCardSwap(dragItemId, dragItemPile, dropItemId, dropItemPile);
+        
+        const dragCard = dragItem.card.property;
+        const dropCard = props.card.property;
+        
+        // Check if the card is droppable into the new pile
+        if (dropCard.number - dragCard.number === 1 && dragCard.color !== dropCard.color)
+            props.dispatchCardSwap(dragItemId, dragItemPile, dropItemId, dropItemPile);
+        else 
+            return;
     }
 };
 
@@ -121,7 +129,7 @@ const DropTargetDecorator = DropTarget(['CARD'], itemTarget, dropCollect);
 
 const mapStateToProps = (state) => {
     return {
-
+        deckHead: state.deckHead
     }
 }
 

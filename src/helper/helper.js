@@ -1,5 +1,6 @@
 import cardImages from '../cards';
 
+
 export const getRandom = (min, max) => {
     return Math.floor(Math.random() * (max - min)) + min;
 };
@@ -8,14 +9,15 @@ export const cardKeys = ["c2", "d2", "h2", "s2", "c3", "d3", "h3", "s3", "c4", "
 
 const keyToCard = (key, frontView = false, position = 'deck', style = {}, cardHelperClasses = '') => {
     return {
-        name: 'sample card',
+        name: 'Playing Card',
         id: key,
-        front: cardImages[key],
-        back: cardImages['back'],
+        front: cardImages[key].src,
+        back: cardImages['back'].src,
         frontView,
         position,
         style,
-        cardHelperClasses
+        cardHelperClasses,
+        property: cardImages[key]
     };
 };
 
@@ -50,7 +52,8 @@ export const generateInitialPiles = () => {
                 pileHead = cardIndexes[index];
             }
             let style = {
-                marginTop: `${j * 20}px`
+                marginTop: `${j * 20}px`,
+                zIndex: j + 1
             };
 
             let card = keyToCard(cardIndexes[index], frontView, `pile-${index}`, style);
@@ -78,6 +81,66 @@ export const shuffle = (arr) => {
     return arr;
 };
 
-export const generateDeck = () => {
+export const updatePileCardStyle = (piles, pileNo) => {
+    const pile = piles[pileNo - 1];
+    pile.cards = pile.cards.map((card, index) => {
+        card.style.zIndex = index + 1;
+        card.style.marginTop = `${index * 20}px`;
+        return card;
+    });
+    return piles;
+};
+
+export const updateDeckCardStyle = (deck) => {
 
 };
+
+// check is empty object/array/variable
+export const isEmpty = (root, path = '') => {
+    
+    path = typeof path === 'string' && path.length > 0 ? path : false;
+
+    if (path !== false) {
+        let keyList = [];
+        keyList = path.split('.');
+        
+        if (keyList.length > 0) {
+            let obj = root;
+            
+            const keyLength = keyList.length;
+            
+            if (checkEmpty(obj)) return true;
+
+            for ( let index = 0; index < keyLength; index++ ) {
+                obj = obj[keyList[index]];
+                return checkEmpty(obj);
+            }
+        }
+    } else {
+        return checkEmpty(root);
+    }
+
+    return false;
+}
+
+export const checkEmpty = (root) => {
+    if (typeof root === 'undefined') {
+        return true;
+    } else {
+        if (typeof root === 'object') {
+            if (root === null) {
+                return true;
+            } else if (Object.keys(root).length === 0) {
+                return true;
+            }
+        } else if (typeof root === 'object' && root instanceof Array && root.length === 0) {
+            return true;
+        } else if (typeof root === 'string' && root.length === 0) {
+            return true;
+        } else if (typeof root === 'number' && root === 0) {
+            return true;
+        } else if (typeof root === 'boolean' && root === false) {
+            return true;
+        }
+    }
+}

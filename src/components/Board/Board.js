@@ -23,9 +23,9 @@ class Board extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="reset">
+                {/* <div className="reset">
                     <button className="button is-danger" onClick={resetState}>Reset</button>
-                </div>
+                </div> */}
             </div>
         ) ;
     }

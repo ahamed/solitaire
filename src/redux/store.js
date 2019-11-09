@@ -1,7 +1,7 @@
 import { createStore } from 'redux';
 import update from 'immutability-helper';
 import deepcopy from 'deepcopy';
-import { cardKeys, generateInitialPiles } from '../helper/helper';
+import { cardKeys, generateInitialPiles, updatePileCardStyle, isEmpty } from '../helper/helper';
 
 
 const {piles, deck} = generateInitialPiles();
@@ -10,7 +10,8 @@ const initialState = {
     cardKeys,
     piles,
     deck,
-    deckHead: cardKeys[deck.length - 3], // deck head card should be the third card from last of the deck
+    deckShow: [],
+    deckHead: deck[deck.length - 1].id, // deck head card should be the third card from last of the deck
 };
 
 const reducer = (state = initialState, action) => {
@@ -30,6 +31,7 @@ const reducer = (state = initialState, action) => {
             const topCardIndex = state.deck.findIndex(card => card.id === topCardId);
             const { length: deckTotal } = state.deck;
             let updatedDeck;
+            const deckShow = [];
             
             // Get the clicked card from the deck top
             if (typeof state.deck[topCardIndex] !== 'undefined') {
@@ -39,6 +41,7 @@ const reducer = (state = initialState, action) => {
                         style: {$set: {zIndex: deckTotal - topCardIndex + 1, transform: `translate3d(0px, 130px, 10px)`}}
                     }
                 });
+                deckShow.push(state.deck[topCardIndex].id);
             }
 
             // Check if exists and take the top second card from the deck set
@@ -49,6 +52,7 @@ const reducer = (state = initialState, action) => {
                         style: {$set: {zIndex: deckTotal - topCardIndex, transform: `translate3d(-20px, 130px, 10px)`}}
                     }
                 });
+                deckShow.push(state.deck[topCardIndex - 1].id);
             }
 
             // Check if exists and take the top third card from the deck set
@@ -59,58 +63,52 @@ const reducer = (state = initialState, action) => {
                         style: {$set: {zIndex: deckTotal - 1 - topCardIndex, transform: `translate3d(-40px, 130px, 10px)`}}
                     }
                 });
+                deckShow.push(state.deck[topCardIndex - 2].id);
+            }
+
+            const copyDeckShow = deepcopy(state.deckShow);
+            const updatedDeckShow = [...deckShow, ...copyDeckShow];
+            
+            let deckHead = '';
+            if (typeof updatedDeckShow !== 'undefined' && updatedDeckShow.length > 0) {
+                deckHead = updatedDeckShow[0];
             }
             
             return update(state, {
                 deck: {$set: updatedDeck},
-                deckHead: {$set: state.cardKeys[topCardIndex - 2]}
+                deckShow: {$set: updatedDeckShow},
+                deckHead: {$set: deckHead}
             });
         
         case 'CARD_SWAP':
             const {dragItemId, dragItemPile, dropItemId, dropItemPile} = action.payload;
             const copyPiles = deepcopy(state.piles);
-            const dragPile = copyPiles[dragItemPile - 1];
-            const dropPile = copyPiles[dropItemPile - 1];
+            const copyDeck = deepcopy(state.deck);
 
-            // if drag pile or drop pile don't exists or some other error,
-            // then return the original state
-            if (typeof dragPile === 'undefined' || typeof dropPile === 'undefined') return state;
-
-            // get the dragging card index
-            const dragCardIndex = dragPile.cards.findIndex(card => card.id === dragItemId);
-
-            // remove the dragging card from the pile
-            const dragItem = dragPile.cards.splice(dragCardIndex, 1);
-
-            // get the card where the dragging card is dropped
-            const dropItem = dropPile.cards.filter(card => card.id === dropItemId);
-
-            // if drop item found
-            if (typeof dropItem !== 'undefined' && dropItem.length > 0) {
-                // get the last item's margin top value
-                const itemMarginTop = parseInt(dropItem[0].style.marginTop, 10) || 0;
-                dragItem[0].style.marginTop = `${itemMarginTop + 20}px`;
-            }
-
-            // push the drag Item into the drop pile
-            if (typeof dragItem !== 'undefined' && dragItem.length > 0) {
-                dropPile.cards.push(dragItem[0]);
-            }
-
-            // update the drag pile's pileHead value
-            if (typeof dragPile.cards[dragPile.cards.length - 1] !== 'undefined') {
-                dragPile.pileHead = dragPile.cards[dragPile.cards.length - 1].id;
+            if (dragItemPile === -1) {
+                const { deck, piles } = swapDeck2Pile(copyDeck, copyPiles, dragItemId, dropItemPile);
                 
-                // show the frontview of the drag pile's last card
-                dragPile.cards[dragPile.cards.length - 1].frontView = true;
-            } else {
-                dragPile.pileHead = '-1';
-            }
-            
+                const updatedDeckShow2 = update(state, {
+                    deckShow: {$splice: [[0, 1]]}
+                });
+                let deckHead = state.deckHead;
+                if (typeof updatedDeckShow2.deckShow !== 'undefined' && updatedDeckShow2.deckShow.length > 0) {
+                    deckHead = updatedDeckShow2.deckShow[0];
+                }
 
-            return update(state, {
-                piles: {$set: copyPiles}
-            });
+                return update(state, {
+                    deck: {$set: deck},
+                    piles: {$set: piles},
+                    deckShow: {$set: updatedDeckShow2.deckShow},
+                    deckHead: {$set: deckHead}
+                });
+            } else if(dragItemPile > 0) {
+                const p2pPiles = swapPile2Pile(copyPiles, dragItemId, dropItemId, dragItemPile, dropItemPile);
+                return update(state, {
+                    piles: {$set: updatePileCardStyle(p2pPiles, dropItemPile)}
+                });
+            }
+            return state;
         case 'RESET_DECK':
             let deckCopy = deepcopy(state.deck);
             deckCopy = deckCopy.map((card, index) => {
@@ -124,6 +122,64 @@ const reducer = (state = initialState, action) => {
         default: 
             return state;
     }
+};
+
+/**
+ * Swap a card from deck to pile
+ * @param   array   deck    deck cards
+ * @param   array   piles   piles array
+ * 
+ * @return  array   updated piles and deck
+ */
+const swapDeck2Pile = (deck, piles, dragCardId, pileNo) => {
+    const cardToMove = deck.filter(card => card.id === dragCardId)[0];
+    const cardIndex = deck.findIndex(card => card.id === dragCardId);
+
+    // remove card existing style
+    cardToMove.style = {};
+    cardToMove.position = 'pile';
+
+    const updatedPiles = update(piles, {
+        [pileNo - 1]: {
+            cards: {$push: [cardToMove]}
+        }
+    });
+    
+    const updatedDeck = update(deck, {$splice: [[cardIndex, 1]]});
+
+    const finalPiels = updatePileCardStyle(updatedPiles, pileNo);
+    
+    return {
+        deck: updatedDeck,
+        piles: finalPiels
+    };
+};
+
+
+const swapPile2Pile = (piles, dragId, dropId, dragPile, dropPile) => {
+    const dragCardIndex = piles[dragPile - 1].cards.findIndex(card => card.id === dragId);
+    const dragCard      = piles[dragPile - 1].cards[dragCardIndex];
+    dragCard.style = {};
+
+    // Remove all the cards from dragging one to all below-
+    const pilesAfterRemove = piles[dragPile - 1].cards.filter((card, index) => index < dragCardIndex);
+    const removedCards = piles[dragPile - 1].cards.filter((card, index) => index >= dragCardIndex);
+    
+    const updatedPiles = update(piles, {
+        [dragPile - 1]: {
+            cards: {$set: pilesAfterRemove}
+        },
+        [dropPile - 1]: {
+            cards: {$push: removedCards}
+        }
+    });
+    
+    if (!isEmpty(updatedPiles[dragPile - 1]) && 
+        !isEmpty(updatedPiles[dragPile - 1].cards[updatedPiles[dragPile - 1].cards.length - 1])) {
+            updatedPiles[dragPile - 1].cards[updatedPiles[dragPile - 1].cards.length - 1].frontView = true;
+    }
+
+    return updatedPiles;
 };
 
 const store = createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());

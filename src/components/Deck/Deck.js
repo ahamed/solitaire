@@ -22,9 +22,11 @@ class Deck extends Component {
                     return (
                         <Card 
                             card={card} 
-                            key={card.id} 
+                            key={card.id}
+                            id={card.id}
+                            index={card.id}
+                            pileNo={-1}
                             hoverable={false}
-                            deck={true}
                         />
                     )
                 })}
