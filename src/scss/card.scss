@@ -1,6 +1,6 @@
 .solitaire-card-container {
-    width: calc(#{$card-width} / 2);
-    height: calc(#{$card-height} / 2);
+    width: calc(#{$card-width} / 2.5);
+    height: calc(#{$card-height} / 2.5);
     margin: 20px 10px;
     perspective: 800px;
     transition: .3s transform;
