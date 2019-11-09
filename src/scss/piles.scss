@@ -8,11 +8,13 @@
     .solitaire-pile {
         width: calc(#{$card-width} / 2);
         height: calc(#{$card-height} / 2);
-        margin: 20px 10px;
         &.is-empty-pile{
+            width: calc(#{$card-width} / 2.5);
+            height: calc(#{$card-height} / 2.5);
             border: 1px solid transparent;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 3px;
+            margin-top: 20px;
         }
 
         &.has-card {
