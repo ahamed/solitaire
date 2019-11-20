@@ -1,12 +1,21 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { DragSource, DropTarget } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 
 class Card extends Component {
     constructor(props) {
         super(props);
         this.state = {
         };
+    }
+
+    componentDidMount() {
+        if (this.props.connectDragPreview) {
+            this.props.connectDragPreview(getEmptyImage(), {
+                captureDraggingState: true
+            });
+        }
     }
 
     rotateCard = (event) => {
@@ -51,7 +60,7 @@ class Card extends Component {
         const opacity = isDragging ? 0 : 1;
         card.style = {...card.style, opacity: opacity};
         
-        return connectDragPreview(connectDropTarget(connectDragSource(
+        return connectDropTarget(connectDragSource(
             <div 
                 className={`solitaire-card-container ${card.cardHelperClasses} ${hoverable ? 'hoverable' : ''}`} 
                 style={card.style}
@@ -62,7 +71,7 @@ class Card extends Component {
                     <div className="solitaire-card__face solitaire-card__face--front" style={{backgroundImage: `url(${card.front})`}}></div>
                 </div>
             </div>
-        )));
+        ));
     }
 }
 
