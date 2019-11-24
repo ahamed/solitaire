@@ -13,6 +13,7 @@ const keyToCard = (key, frontView = false, position = 'deck', style = {}, cardHe
         id: key,
         front: cardImages[key].src,
         back: cardImages['back'].src,
+        showStatus: true,
         frontView,
         position,
         style,

@@ -109,6 +109,29 @@ const reducer = (state = initialState, action) => {
                 });
             }
             return state;
+        case 'VISIBILITY_TOGGLE':
+            const {id: draggingCardId, pileNo: draggingPileNo, status: cardStatus} = action.payload;
+            if (draggingPileNo < 0) return state;
+
+            const cloneVisibilityPiles = deepcopy(state.piles);
+            const selectedPile = cloneVisibilityPiles[ draggingPileNo - 1];
+            const { cards: selectedCards } = selectedPile;
+            const selectedCardIndex = selectedCards.findIndex(card => card.id === draggingCardId);
+            
+            const updatedPilesVisibility = selectedCards.map((card, index) => {
+                if (index > selectedCardIndex) {
+                    card.style.visibility = cardStatus ? 'visible' : 'hidden';
+                }
+                return card;
+            });
+
+            return update(state, {
+                piles: {
+                    [draggingPileNo - 1]: {
+                        cards: {$set: updatedPilesVisibility}
+                    }
+                }
+            });
         case 'RESET_DECK':
             let deckCopy = deepcopy(state.deck);
             deckCopy = deckCopy.map((card, index) => {

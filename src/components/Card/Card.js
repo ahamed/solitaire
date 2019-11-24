@@ -51,7 +51,6 @@ class Card extends Component {
         const { 
             card, 
             hoverable = true,
-            connectDragPreview,
             connectDragSource,
             connectDropTarget,
             isDragging
@@ -59,7 +58,7 @@ class Card extends Component {
         
         const opacity = isDragging ? 0 : 1;
         card.style = {...card.style, opacity: opacity};
-        
+
         return connectDropTarget(connectDragSource(
             <div 
                 className={`solitaire-card-container ${card.cardHelperClasses} ${hoverable ? 'hoverable' : ''}`} 
@@ -77,6 +76,7 @@ class Card extends Component {
 
 const itemSource = {
     beginDrag: props => {
+        props.dispatchToggleVisibility(props.id, props.pileNo, false);
         return {
             id: props.id,
             index: props.index,
@@ -94,6 +94,9 @@ const itemSource = {
             return true;
         }
         return false;
+    },
+    endDrag: props => {
+        props.dispatchToggleVisibility(props.id, props.pileNo, true);
     }
 };
 
@@ -108,7 +111,9 @@ const itemTarget = {
         
         const dragCard = dragItem.card.property;
         const dropCard = props.card.property;
-        
+
+        props.dispatchToggleVisibility(props.id, props.pileNo, true);
+
         // Check if the card is droppable into the new pile
         if (dropCard.number - dragCard.number === 1 && dragCard.color !== dropCard.color)
             props.dispatchCardSwap(dragItemId, dragItemPile, dropItemId, dropItemPile);
@@ -160,6 +165,17 @@ const mapDispatchToProps = (dispatch) => {
                     dragItemPile,
                     dropItemId,
                     dropItemPile
+                }
+            };
+            dispatch(action);
+        },
+        dispatchToggleVisibility: (id, pileNo, status) => {
+            const action = {
+                type: 'VISIBILITY_TOGGLE',
+                payload: {
+                    id,
+                    pileNo,
+                    status
                 }
             };
             dispatch(action);
